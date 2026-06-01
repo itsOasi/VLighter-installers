@@ -45,11 +45,22 @@ if %errorlevel% neq 0 (
     echo Pipenv installed.
 )
 
-# ── FFmpeg ────────────────────────────────────────────────────────────────────
-if ! command -v ffmpeg &>/dev/null; then
-    echo "Installing ffmpeg..."
-    $INSTALL_CMD ffmpeg
-fi
+:: ── FFmpeg ───────────────────────────────────────────────────────────────────
+where ffmpeg >nul 2>&1
+if %errorlevel% neq 0 (
+    echo FFmpeg not found. Downloading...
+    powershell -Command "Invoke-WebRequest -Uri 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip' -OutFile '%TEMP_DIR%\ffmpeg.zip'"
+    if %errorlevel% neq 0 goto :fail_download
+
+    echo Extracting FFmpeg...
+    powershell -Command "Expand-Archive -Path '%TEMP_DIR%\ffmpeg.zip' -DestinationPath '%TEMP_DIR%\ffmpeg'"
+    if %errorlevel% neq 0 goto :fail
+
+    :: Copy ffmpeg.exe to install dir so it's always findable
+    for /d %%i in ("%TEMP_DIR%\ffmpeg\ffmpeg-*") do copy /y "%%i\bin\ffmpeg.exe" "%INSTALL_DIR%\ffmpeg.exe"
+    if %errorlevel% neq 0 goto :fail
+    echo FFmpeg installed.
+)
 
 :: ── Clone ─────────────────────────────────────────────────────────────────────
 if exist "%INSTALL_DIR%" (

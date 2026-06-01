@@ -53,6 +53,12 @@ if ! command -v pipenv &>/dev/null; then
     export PATH="$HOME/.local/bin:$PATH"
 fi
 
+# ── FFmpeg ────────────────────────────────────────────────────────────────────
+if ! command -v ffmpeg &>/dev/null; then
+    echo "Installing ffmpeg..."
+    $INSTALL_CMD ffmpeg
+fi
+
 # ── Clone and install ─────────────────────────────────────────────────────────
 git clone "$REPO_URL" "$INSTALL_DIR"
 cd "$INSTALL_DIR"
